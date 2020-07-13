@@ -62,3 +62,8 @@
 .load-btn:focus {
   outline: none;
 }
+.end-of-page {
+  text-align: center;
+  font-size: 19px;
+  padding: 10px;
+}

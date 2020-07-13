@@ -13,6 +13,7 @@ interface Movie {
 
 function MovieInfoCard() {
   const [movieData, setMovieData] = useState<[Movie]>();
+  const [numberOfMovies, setnumberOfMovies] = useState(8);
 
   const MOVIE_URL =
     "https://api.themoviedb.org/3/movie/popular?api_key=0b0e8d104f0d6130a4fc67848f89e107&language=en-US&page=1";
@@ -23,7 +24,7 @@ function MovieInfoCard() {
     });
   }, []);
 
-  const allMovies = movieData?.map((movie) => {
+  const allMovies = movieData?.slice(0, numberOfMovies).map((movie) => {
     return (
       <div className="info-cart" key={movie.id}>
         <img
@@ -42,14 +43,20 @@ function MovieInfoCard() {
     );
   });
 
-  const loadMovies = () => {};
+  const loadMovies = () => {
+    setnumberOfMovies(numberOfMovies + 8);
+  };
 
   return (
     <div className="movie-card-page">
       <div className="movie-card-grid">{allMovies}</div>
-      <button className="load-btn" onClick={loadMovies}>
-        Load
-      </button>
+      {numberOfMovies < 21 ? (
+        <button className="load-btn" onClick={loadMovies}>
+          Load
+        </button>
+      ) : (
+        <p className="end-of-page">End of the page</p>
+      )}
     </div>
   );
 }
