@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./MovieInfoCard.css";
+import { Link } from "react-router-dom";
 
 interface Movie {
   id: string;
@@ -11,54 +12,50 @@ interface Movie {
   poster_path: string;
 }
 
-function MovieInfoCard() {
-  const [movieData, setMovieData] = useState<[Movie]>();
-  const [numberOfMovies, setnumberOfMovies] = useState(8);
+interface Props {
+  numberOfMovies: number;
+}
 
-  const MOVIE_URL =
-    "https://api.themoviedb.org/3/movie/popular?api_key=0b0e8d104f0d6130a4fc67848f89e107&language=en-US&page=1";
+function MovieInfoCard(props: Props) {
+  const [movieData, setMovieData] = useState<[Movie]>();
+
+  const BASE_URL = "https://api.themoviedb.org";
+  const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
+  const POPULAR_MOVIE_URL = `${BASE_URL}/3/movie/popular?api_key=${API_KEY}`;
 
   useEffect(() => {
-    axios.get(MOVIE_URL).then((res) => {
+    axios.get(POPULAR_MOVIE_URL).then((res) => {
       setMovieData(res.data.results);
     });
-  }, []);
+  }, [POPULAR_MOVIE_URL]);
 
-  const allMovies = movieData?.slice(0, numberOfMovies).map((movie) => {
+  const allMovies = movieData?.slice(0, props.numberOfMovies).map((movie) => {
     return (
       <div className="info-cart" key={movie.id}>
-        <img
-          src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
-          alt="movie-img-small"
-          className="movie-info-img"
-        ></img>
-        <p className="movie-info-rating">{movie.vote_average}</p>
-        <p className="movie-info-title-year">
-          {movie.title} ({movie.release_date.substring(0, 4)})
-        </p>
-        <p className="movie-info-language">
-          Language: {movie.original_language}
-        </p>
+        <Link
+          to={{
+            pathname: `/${movie.id}`,
+            state: movie,
+          }}
+        >
+          <img
+            src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+            alt="movie-img-small"
+            className="movie-info-img"
+          ></img>
+          <p className="movie-info-rating">{movie.vote_average}</p>
+          <p className="movie-info-title-year">
+            {movie.title} ({movie.release_date.substring(0, 4)})
+          </p>
+          <p className="movie-info-language">
+            Language: {movie.original_language}
+          </p>
+        </Link>
       </div>
     );
   });
 
-  const loadMovies = () => {
-    setnumberOfMovies(numberOfMovies + 8);
-  };
-
-  return (
-    <div className="movie-card-page">
-      <div className="movie-card-grid">{allMovies}</div>
-      {numberOfMovies < 21 ? (
-        <button className="load-btn" onClick={loadMovies}>
-          Load
-        </button>
-      ) : (
-        <p className="end-of-page">End of the page</p>
-      )}
-    </div>
-  );
+  return <div className="movie-card-grid">{allMovies}</div>;
 }
 
 export default MovieInfoCard;

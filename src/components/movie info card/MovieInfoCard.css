@@ -67,3 +67,10 @@
   font-size: 19px;
   padding: 10px;
 }
+a {
+  color: black;
+  text-decoration: none;
+}
+.info-cart:hover {
+  cursor: pointer;
+}

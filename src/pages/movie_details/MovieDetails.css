@@ -1,0 +1,42 @@
+.movie-details-page {
+  width: 67%;
+  height: 1fr;
+  background-color: rgb(243, 241, 241);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  padding: 30px 0;
+}
+.movie-title {
+  font-size: 24px;
+  padding: 20px 0;
+  text-align: center;
+}
+.movie-poster {
+  width: 350px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+.movie-overview {
+  padding: 30px 40px 20px 40px;
+  text-align: justify;
+  margin: 30px 0;
+}
+.movie-rating {
+  padding: 5px 40px;
+  font-size: 15px;
+}
+.movie-popularity {
+  padding: 5px 40px;
+  font-size: 15px;
+}
+.movie-language {
+  padding: 5px 40px;
+  font-size: 15px;
+}
+.rating {
+  float: right;
+  margin-right: 40px;
+  margin-top: 10px;
+}

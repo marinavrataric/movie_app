@@ -1,10 +1,10 @@
 import React from "react";
-import MovieInfoCard from "./components/movie info card/MovieInfoCard";
+import Navigation from "./router/Navigation";
 
 function App() {
   return (
     <div className="App">
-      <MovieInfoCard />
+      <Navigation />
     </div>
   );
 }
