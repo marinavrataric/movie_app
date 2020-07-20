@@ -34,6 +34,7 @@ function MovieInfoCard(props: Props) {
     return (
       <div className="info-cart" key={movie.id}>
         <Link
+          style={{ textDecoration: "none" }}
           to={{
             pathname: `/${movie.id}`,
             state: movie,

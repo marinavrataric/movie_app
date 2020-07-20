@@ -24,7 +24,6 @@ const BASE_URL = "https://api.themoviedb.org";
 const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
 
 const MovieRoulette = (props: Props) => {
-  const [isCheck, setIsCheck] = useState(false);
   const [genres, setGenres] = useState<[Genre]>();
   const [selectedGenre, setSelectedGenre] = useState<number>();
   const [discoverMovie, setDiscoverMovie] = useState<Movie>();
@@ -55,20 +54,16 @@ const MovieRoulette = (props: Props) => {
           value={genre.name}
           name="genre"
           onChange={() => {
-            setIsCheck(!isCheck);
-          }}
-          onClick={() => {
-            setIsCheck(!isCheck);
             setSelectedGenre(genre.id);
-            console.log(genre.name);
           }}
-          checked={isCheck}
+          checked={selectedGenre === genre.id}
         ></input>
         {genre.name}
       </div>
     );
   });
 
+  const shouldDisableRollButton = typeof selectedGenre === "undefined";
   return (
     <Modal isOpen={props.isModalOpen}>
       <ModalHeader>Movie Roullette</ModalHeader>
@@ -77,9 +72,10 @@ const MovieRoulette = (props: Props) => {
         <div>{genreList}</div>
       </ModalBody>
       <ModalFooter>
-        <Button color="success">
+        <Button color="success" disabled={shouldDisableRollButton}>
           {discoverMovie ? (
             <Link
+              style={{ color: "white", textDecoration: "none" }}
               to={{
                 pathname: `/${discoverMovie.id}`,
                 state: discoverMovie,

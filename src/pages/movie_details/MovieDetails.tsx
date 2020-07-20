@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import "./MovieDetails.css";
 import RatingStars from "react-rating-stars-component";
 import { constants } from "../../constants/GeneralConstans";
+import { useMovieRating } from "../../hooks/useMovieRating";
 
 interface Movie {
   id: string;
@@ -15,38 +16,11 @@ interface Movie {
   release_date: string;
 }
 
-interface RatingBarValue {
-  [key: string]: number;
-}
-
 function MovieDetails() {
-  const getStorage = () => {
-    const parsed = JSON.parse(
-      localStorage.getItem(constants.ratingBarLocalStorageKey) || ""
-    );
-    return parsed || {};
-  };
-
   const location = useLocation<Movie>();
+
   const [movieData, setMovieData] = useState<Movie>(location.state);
-  const [ratingValues, setRatingValues] = useState<RatingBarValue>(
-    getStorage()
-  );
-
-  useEffect(() => {
-    setMovieData(location.state);
-  }, [location.state]);
-
-  const handleRating = (ratingNumber: number) => {
-    setRatingValues({ ...ratingValues, [movieData.id]: ratingNumber });
-    localStorage.setItem(
-      constants.ratingBarLocalStorageKey,
-      JSON.stringify({ ...ratingValues, [movieData.id]: ratingNumber })
-    );
-  };
-
-  const currentMovieRating = ratingValues && ratingValues[movieData.id];
-  console.log(ratingValues);
+  const [currentMovieRating, handleRating] = useMovieRating();
 
   return (
     <div className="movie-details-page">
