@@ -24,7 +24,7 @@ const BASE_URL = "https://api.themoviedb.org";
 const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
 
 const MovieRoulette = (props: Props) => {
-  const [genres, setGenres] = useState<[Genre]>();
+  const [genres, setGenres] = useState<Genre[]>();
   const [selectedGenre, setSelectedGenre] = useState<number>();
   const [discoverMovie, setDiscoverMovie] = useState<Movie>();
 
@@ -37,9 +37,8 @@ const MovieRoulette = (props: Props) => {
   const DISCOVER_MOVIE_URL = `${BASE_URL}/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&with_genres=${selectedGenre}`;
 
   useEffect(() => {
-    const min = 0;
     const max = 19;
-    const randomNumber = Math.floor(Math.random() * (max - min + 1));
+    const randomNumber = Math.floor(Math.random() * max + 1);
     Axios.get(DISCOVER_MOVIE_URL).then((res) =>
       setDiscoverMovie(res.data.results[randomNumber])
     );

@@ -19,7 +19,7 @@ interface Movie {
 function MovieDetails() {
   const location = useLocation<Movie>();
 
-  const [movieData, setMovieData] = useState<Movie>(location.state);
+  const movieData = location.state;
   const [currentMovieRating, handleRating] = useMovieRating();
 
   return (
