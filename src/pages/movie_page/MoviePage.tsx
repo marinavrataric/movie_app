@@ -10,8 +10,6 @@ function MoviePage() {
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const toggleModal = () => setIsModalOpen(!isModalOpen);
-  console.log(isModalOpen);
 
   return (
     <div className="movie-card-page">

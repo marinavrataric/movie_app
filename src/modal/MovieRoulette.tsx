@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import Axios from "axios";
+import { Link } from "react-router-dom";
 
 interface Props {
   isModalOpen: boolean;
@@ -10,34 +11,52 @@ interface Genre {
   id: number;
   name: string;
 }
+interface Movie {
+  id: string;
+  original_language: string;
+  title: string;
+  release_date: string;
+  vote_average: number;
+  poster_path: string;
+}
+
 const BASE_URL = "https://api.themoviedb.org";
 const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
-const GENRE_URL = `https://api.themoviedb.org/3/genre/movie/list?api_key=0b0e8d104f0d6130a4fc67848f89e107&language=en-US`;
 
 const MovieRoulette = (props: Props) => {
   const [isCheck, setIsCheck] = useState(false);
-  const [genres, setGenres] = useState([]);
-  const [selectedGenre, setSelectedGenre] = useState();
+  const [genres, setGenres] = useState<[Genre]>();
+  const [selectedGenre, setSelectedGenre] = useState<number>();
+  const [discoverMovie, setDiscoverMovie] = useState<Movie>();
+
+  const GENRE_URL = `${BASE_URL}/3/genre/movie/list?api_key=${API_KEY}`;
 
   useEffect(() => {
     Axios.get(GENRE_URL).then((res) => setGenres(res.data.genres));
-  }, []);
+  }, [GENRE_URL]);
 
-  const DISCOVER_MOVIE_URL = `https://api.themoviedb.org/3/discover/movie?api_key=0b0e8d104f0d6130a4fc67848f89e107&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_genres=${selectedGenre}`;
+  const DISCOVER_MOVIE_URL = `${BASE_URL}/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&with_genres=${selectedGenre}`;
 
-  const rollMovie = () => {
-    Axios.get(DISCOVER_MOVIE_URL).then((res) => console.log(res.data));
-  };
+  useEffect(() => {
+    const min = 0;
+    const max = 19;
+    const randomNumber = Math.floor(Math.random() * (max - min + 1));
+    Axios.get(DISCOVER_MOVIE_URL).then((res) =>
+      setDiscoverMovie(res.data.results[randomNumber])
+    );
+  }, [selectedGenre, DISCOVER_MOVIE_URL]);
 
-  const genreList = genres.map((genre: { name: string; id: number }) => {
+  const genreList = genres?.map((genre: Genre) => {
     return (
-      <div>
+      <div key={genre.id}>
         <input
           key={genre.id}
           type="radio"
           value={genre.name}
           name="genre"
-          onChange={() => setIsCheck(!isCheck)}
+          onChange={() => {
+            setIsCheck(!isCheck);
+          }}
           onClick={() => {
             setIsCheck(!isCheck);
             setSelectedGenre(genre.id);
@@ -50,10 +69,6 @@ const MovieRoulette = (props: Props) => {
     );
   });
 
-  //console.log("genres", genres);
-  //console.log("selected genre: ", selectedGenre);
-  console.log(isCheck);
-
   return (
     <Modal isOpen={props.isModalOpen}>
       <ModalHeader>Movie Roullette</ModalHeader>
@@ -62,8 +77,19 @@ const MovieRoulette = (props: Props) => {
         <div>{genreList}</div>
       </ModalBody>
       <ModalFooter>
-        <Button color="success" onClick={rollMovie}>
-          Roll
+        <Button color="success">
+          {discoverMovie ? (
+            <Link
+              to={{
+                pathname: `/${discoverMovie.id}`,
+                state: discoverMovie,
+              }}
+            >
+              Roll
+            </Link>
+          ) : (
+            "Roll"
+          )}
         </Button>
         <Button color="danger" onClick={() => props.setIsModalOpen(false)}>
           Cancel

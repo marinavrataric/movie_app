@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./MovieDetails.css";
 import RatingStars from "react-rating-stars-component";
+import { constants } from "../../constants/GeneralConstans";
 
 interface Movie {
   id: string;
@@ -14,33 +15,38 @@ interface Movie {
   release_date: string;
 }
 
+interface RatingBarValue {
+  [key: string]: number;
+}
+
 function MovieDetails() {
-  const initStateMovie = {
-    id: "",
-    original_language: "",
-    overview: "",
-    poster_path: "",
-    title: "",
-    vote_average: null,
-    popularity: null,
-    release_date: "",
+  const getStorage = () => {
+    const parsed = JSON.parse(
+      localStorage.getItem(constants.ratingBarLocalStorageKey) || ""
+    );
+    return parsed || {};
   };
 
   const location = useLocation<Movie>();
-  const [movieData, setMovieData] = useState<Movie>(initStateMovie);
-  const [ratingBarValue, setRatingBarValue] = useState(0);
+  const [movieData, setMovieData] = useState<Movie>(location.state);
+  const [ratingValues, setRatingValues] = useState<RatingBarValue>(
+    getStorage()
+  );
 
   useEffect(() => {
     setMovieData(location.state);
   }, [location.state]);
 
   const handleRating = (ratingNumber: number) => {
-    setRatingBarValue(ratingNumber);
-    localStorage.setItem("rating bar", JSON.stringify(ratingNumber));
+    setRatingValues({ ...ratingValues, [movieData.id]: ratingNumber });
+    localStorage.setItem(
+      constants.ratingBarLocalStorageKey,
+      JSON.stringify({ ...ratingValues, [movieData.id]: ratingNumber })
+    );
   };
 
-  const ratingBarValueStorage = localStorage.getItem("rating bar");
-  const ratingBarConverted = Number(ratingBarValueStorage);
+  const currentMovieRating = ratingValues && ratingValues[movieData.id];
+  console.log(ratingValues);
 
   return (
     <div className="movie-details-page">
@@ -58,7 +64,7 @@ function MovieDetails() {
         <RatingStars
           count={10}
           size={24}
-          value={ratingBarConverted}
+          value={currentMovieRating}
           onChange={handleRating}
         />
       </div>

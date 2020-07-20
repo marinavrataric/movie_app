@@ -16,11 +16,12 @@ interface Props {
   numberOfMovies: number;
 }
 
+const BASE_URL = "https://api.themoviedb.org";
+const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
+
 function MovieInfoCard(props: Props) {
   const [movieData, setMovieData] = useState<[Movie]>();
 
-  const BASE_URL = "https://api.themoviedb.org";
-  const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
   const POPULAR_MOVIE_URL = `${BASE_URL}/3/movie/popular?api_key=${API_KEY}`;
 
   useEffect(() => {
