@@ -37,6 +37,19 @@
   font-size: 26px;
   margin: 50px;
 }
+.search-bar {
+  width: 100%;
+  background-color: coral;
+}
 .input-search {
-  width: 200px;
+  width: 60%;
+  float: right;
+  margin: 10px;
+}
+.dropdown {
+  float: left;
+}
+label {
+  margin: 10px;
+  margin-top: 16px;
 }

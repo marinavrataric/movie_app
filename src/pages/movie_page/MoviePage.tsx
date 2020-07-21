@@ -17,16 +17,21 @@ interface MovieResponse {
 
 function MoviePage() {
   const numberOfMoviesToLoad = 8;
+  const maximumNumberOfMovies = 21;
+  const POPULAR_MOVIE_URL = `${BASE_URL}/3/movie/popular?api_key=${API_KEY}`;
+
   const [numberOfMovies, setNumberOfMovies] = useState(numberOfMoviesToLoad);
   const [movieData, setMovieData] = useState<MovieInterface[]>();
-
-  const POPULAR_MOVIE_URL = `${BASE_URL}/3/movie/popular?api_key=${API_KEY}`;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterMovie, setFilterMovie] = useState<MovieInterface[]>();
+  const [inputSearchText, setInputSearchText] = useState("");
+  const [selectedYear, setSelectedYear] = useState("2020");
 
   useEffect(() => {
     Axios.get(POPULAR_MOVIE_URL).then((res: MovieResponse) => {
       const loadedMovieData = res.data.results;
       setMovieData(loadedMovieData);
-      setFilter(loadedMovieData);
+      setFilterMovie(loadedMovieData);
     });
   }, [POPULAR_MOVIE_URL]);
 
@@ -34,37 +39,71 @@ function MoviePage() {
     setNumberOfMovies(numberOfMovies + numberOfMoviesToLoad);
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [inputSearchText, setInputSearchText] = useState("");
-
+  // search movie
   const inputSearchTextLowerCase = inputSearchText.toLocaleLowerCase();
-  const [filter, setFilter] = useState();
 
   const handleSumbitSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const filterMovieData = movieData?.filter((movie: MovieInterface) =>
+    const filterMovieSearch = movieData?.filter((movie: MovieInterface) =>
       movie.title.toLocaleLowerCase().includes(inputSearchTextLowerCase)
     );
-    setFilter(filterMovieData);
+    setFilterMovie(filterMovieSearch);
     setInputSearchText("");
   };
 
-  const maximumNumberOfMovies = 21;
+  // select year
+  const mapSlicedYears = movieData?.map((movie: MovieInterface) =>
+    movie.release_date.slice(0, 4)
+  );
+  const distinctYearAlternative = [...new Set(mapSlicedYears)];
+
+  const dropdownBarReleaseDate = distinctYearAlternative?.map(
+    (year: string, index) => {
+      return (
+        <option key={index} value={year}>
+          {year}
+        </option>
+      );
+    }
+  );
+
+  const handleSelectYear = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(e.target.value);
+  };
+
+  useEffect(() => {
+    const filterMovieYear = movieData?.filter((movie: MovieInterface) =>
+      movie.release_date.startsWith(selectedYear)
+    );
+    setFilterMovie(filterMovieYear);
+  }, [selectedYear, movieData]);
 
   return (
     <div className="movie-card-page">
-      <form onSubmit={handleSumbitSearch}>
-        <Input
-          value={inputSearchText}
-          placeholder="Search movie..."
-          className="input-search"
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setInputSearchText(e.target.value)
-          }
+      <div className="search-bar">
+        <div className="dropdown">
+          <label>
+            Select movie release
+            <select value={selectedYear} onChange={handleSelectYear}>
+              {dropdownBarReleaseDate}
+            </select>
+          </label>
+        </div>
+        <form onSubmit={handleSumbitSearch} className="input-search">
+          <Input
+            value={inputSearchText}
+            placeholder="Search movie..."
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setInputSearchText(e.target.value)
+            }
+          />
+        </form>
+      </div>
+      {filterMovie?.length !== 0 ? (
+        <MovieInfoCard
+          numberOfMovies={numberOfMovies}
+          movieData={filterMovie}
         />
-      </form>
-      {filter?.length !== 0 ? (
-        <MovieInfoCard numberOfMovies={numberOfMovies} movieData={filter} />
       ) : (
         <p className="no-results-title">No results</p>
       )}
