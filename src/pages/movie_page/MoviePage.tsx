@@ -5,6 +5,8 @@ import { Input } from "reactstrap";
 import "./MoviePage.css";
 import Axios from "axios";
 import { MovieInterface } from "../../interfaces/MovieInterface";
+import { MovieGenres } from "../../constants/MovieGenres";
+import { MovieGenresInterface } from "../../interfaces/MovieGenreInterface";
 
 const BASE_URL = "https://api.themoviedb.org";
 const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
@@ -13,6 +15,11 @@ interface MovieResponse {
   data: {
     results: MovieInterface[];
   };
+}
+
+interface Genre {
+  id: number;
+  name: string;
 }
 
 function MoviePage() {
@@ -25,7 +32,7 @@ function MoviePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterMovie, setFilterMovie] = useState<MovieInterface[]>();
   const [inputSearchText, setInputSearchText] = useState("");
-  const [selectedYear, setSelectedYear] = useState("2020");
+  const [selectedYear, setSelectedYear] = useState();
 
   useEffect(() => {
     Axios.get(POPULAR_MOVIE_URL).then((res: MovieResponse) => {
@@ -39,7 +46,7 @@ function MoviePage() {
     setNumberOfMovies(numberOfMovies + numberOfMoviesToLoad);
   };
 
-  // search movie
+  // filter search movie
   const inputSearchTextLowerCase = inputSearchText.toLocaleLowerCase();
 
   const handleSumbitSearch = (e: FormEvent<HTMLFormElement>) => {
@@ -57,33 +64,103 @@ function MoviePage() {
   );
   const distinctYearAlternative = [...new Set(mapSlicedYears)];
 
-  const dropdownBarReleaseDate = distinctYearAlternative?.map(
-    (year: string, index) => {
+  const dropdownBarReleaseDate = distinctYearAlternative
+    .sort((a: string, b: string) => (a < b ? 1 : -1))
+    ?.map((year: string, index) => {
       return (
         <option key={index} value={year}>
           {year}
         </option>
       );
-    }
-  );
+    });
 
   const handleSelectYear = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectedYear(e.target.value);
   };
 
   useEffect(() => {
+    if (!selectedYear) return;
     const filterMovieYear = movieData?.filter((movie: MovieInterface) =>
       movie.release_date.startsWith(selectedYear)
     );
     setFilterMovie(filterMovieYear);
   }, [selectedYear, movieData]);
 
+  // select rating
+  const [selectedRating, setSlectedRating] = useState();
+
+  const handleSelectRating = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSlectedRating(e.target.value);
+  };
+
+  const movieRating = movieData?.map(
+    (movie: MovieInterface) => movie.vote_average
+  );
+  const movieRatingAlternative = [...new Set(movieRating)];
+
+  const dropdownBarRating = movieRatingAlternative
+    .sort((a: number, b: number) => (a < b ? 1 : -1))
+    .map((rating: number, index) => {
+      return (
+        <option key={index} value={rating}>
+          {rating}
+        </option>
+      );
+    });
+
+  useEffect(() => {
+    if (!selectedRating) return;
+    const filterMovieRating = movieData?.filter((movie: MovieInterface) => {
+      if (movie.vote_average.toString() === selectedRating) return movie;
+    });
+    setFilterMovie(filterMovieRating);
+  }, [selectedRating, movieData]);
+
+  // select genre
+  const [selectedGenre, setSelectedGenre] = useState();
+
+  const handleSelectGenre = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedGenre(e.target.value);
+  };
+
+  const dropdownBarGenre = MovieGenres.map((genre: MovieGenresInterface) => {
+    return (
+      <option key={genre.id} value={genre.id}>
+        {genre.name}
+      </option>
+    );
+  });
+
+  useEffect(() => {
+    if (!selectedGenre) return;
+    const filterMovieGenre = movieData?.filter((movie: MovieInterface) => {
+      if (movie.genre_ids.includes(Number(selectedGenre))) return movie;
+    });
+    setFilterMovie(filterMovieGenre);
+  }, [selectedGenre, movieData]);
+
   return (
     <div className="movie-card-page">
       <div className="search-bar">
         <div className="dropdown">
           <label>
-            Select movie release
+            <p>Select genre</p>
+            <select value={selectedGenre} onChange={handleSelectGenre}>
+              {dropdownBarGenre}
+            </select>
+          </label>
+        </div>
+        <div className="dropdown">
+          <label>
+            <p>Select rating</p>
+            <select value={selectedRating} onChange={handleSelectRating}>
+              {dropdownBarRating}
+            </select>
+          </label>
+        </div>
+        <div className="dropdown">
+          <label>
+            <p>Select year</p>
             <select value={selectedYear} onChange={handleSelectYear}>
               {dropdownBarReleaseDate}
             </select>

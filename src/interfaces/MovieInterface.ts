@@ -5,4 +5,5 @@ export interface MovieInterface {
   release_date: string;
   vote_average: number;
   poster_path: string;
+  genre_ids: any;
 }
