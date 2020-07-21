@@ -139,12 +139,42 @@ function MoviePage() {
     setFilterMovie(filterMovieGenre);
   }, [selectedGenre, movieData]);
 
+  // select language
+  const [selectedLanguage, setSelectedLanguage] = useState();
+
+  const handleSelectLanguage = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLanguage(e.target.value);
+  };
+
+  const movieLanguages = movieData?.map((movie: MovieInterface) => {
+    return movie.original_language;
+  });
+  const distinctMovieLanguage = [...new Set(movieLanguages)];
+
+  const dropdownBarLanguage = distinctMovieLanguage?.map(
+    (language: string, index) => {
+      return (
+        <option key={index} value={language}>
+          {language}
+        </option>
+      );
+    }
+  );
+
+  useEffect(() => {
+    if (!selectedLanguage) return;
+    const filterMovieLanguage = movieData?.filter((movie: MovieInterface) => {
+      if (movie.original_language === selectedLanguage) return movie;
+    });
+    setFilterMovie(filterMovieLanguage);
+  }, [selectedLanguage, movieData]);
+
   return (
     <div className="movie-card-page">
       <div className="search-bar">
         <div className="dropdown">
           <label>
-            <p>Select genre</p>
+            <p className="select-title">Select genre</p>
             <select value={selectedGenre} onChange={handleSelectGenre}>
               {dropdownBarGenre}
             </select>
@@ -152,7 +182,7 @@ function MoviePage() {
         </div>
         <div className="dropdown">
           <label>
-            <p>Select rating</p>
+            <p className="select-title">Select rating</p>
             <select value={selectedRating} onChange={handleSelectRating}>
               {dropdownBarRating}
             </select>
@@ -160,9 +190,17 @@ function MoviePage() {
         </div>
         <div className="dropdown">
           <label>
-            <p>Select year</p>
+            <p className="select-title">Select year</p>
             <select value={selectedYear} onChange={handleSelectYear}>
               {dropdownBarReleaseDate}
+            </select>
+          </label>
+        </div>
+        <div className="dropdown">
+          <label>
+            <p className="select-title">Select language</p>
+            <select value={selectedLanguage} onChange={handleSelectLanguage}>
+              {dropdownBarLanguage}
             </select>
           </label>
         </div>
