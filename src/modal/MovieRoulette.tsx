@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import Axios from "axios";
 import { Link } from "react-router-dom";
+import { MovieInterface } from "../interfaces/MovieInterface";
 
 interface Props {
   isModalOpen: boolean;
@@ -11,14 +12,6 @@ interface Genre {
   id: number;
   name: string;
 }
-interface Movie {
-  id: string;
-  original_language: string;
-  title: string;
-  release_date: string;
-  vote_average: number;
-  poster_path: string;
-}
 
 const BASE_URL = "https://api.themoviedb.org";
 const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
@@ -26,7 +19,7 @@ const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
 const MovieRoulette = (props: Props) => {
   const [genres, setGenres] = useState<Genre[]>();
   const [selectedGenre, setSelectedGenre] = useState<number>();
-  const [discoverMovie, setDiscoverMovie] = useState<Movie>();
+  const [discoverMovie, setDiscoverMovie] = useState<MovieInterface>();
 
   const GENRE_URL = `${BASE_URL}/3/genre/movie/list?api_key=${API_KEY}`;
 

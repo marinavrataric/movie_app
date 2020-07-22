@@ -1,37 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import MovieInfoCard from "../../components/movie info card/MovieInfoCard";
 import MovieRoullette from "../../modal/MovieRoulette";
 import "./MoviePage.css";
-import Axios from "axios";
-import { MovieInterface } from "../../interfaces/MovieInterface";
 import SearchBar from "../../components/search-bar/SearchBar";
+import { useMovies } from "../../hooks/useMovies";
+import { useMoviesWithOptions } from "../../hooks/useMoviesWithOptions";
+import {
+  MovieDisplayOptionsInterface,
+  FilterTypes,
+  SortTypes,
+} from "../../interfaces/DisplayMovies";
 
-const BASE_URL = "https://api.themoviedb.org";
-const API_KEY = "0b0e8d104f0d6130a4fc67848f89e107";
-
-interface MovieResponse {
-  data: {
-    results: MovieInterface[];
-  };
-}
+const initialDisplayOptions: MovieDisplayOptionsInterface = {
+  filterOption: null,
+  sortOption: null,
+};
 
 function MoviePage() {
   const numberOfMoviesToLoad = 8;
   const maximumNumberOfMovies = 21;
-  const POPULAR_MOVIE_URL = `${BASE_URL}/3/movie/popular?api_key=${API_KEY}`;
 
   const [numberOfMovies, setNumberOfMovies] = useState(numberOfMoviesToLoad);
-  const [movieData, setMovieData] = useState<MovieInterface[]>();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filterMovie, setFilterMovie] = useState<MovieInterface[]>();
+  const movieData = useMovies();
 
-  useEffect(() => {
-    Axios.get(POPULAR_MOVIE_URL).then((res: MovieResponse) => {
-      const loadedMovieData = res.data.results;
-      setMovieData(loadedMovieData);
-      setFilterMovie(loadedMovieData);
+  const [displayOptions, setDisplayOptions] = useState<
+    MovieDisplayOptionsInterface
+  >(initialDisplayOptions);
+
+  const changeFilterOptions = (
+    filterType: FilterTypes,
+    value: number | string
+  ) => {
+    const { filterOption } = displayOptions;
+    setDisplayOptions({
+      ...displayOptions,
+      filterOption: {
+        ...filterOption,
+        [filterType]: value,
+      },
     });
-  }, [POPULAR_MOVIE_URL]);
+  };
+
+  const changeSortOption = (sortKey: SortTypes, asc: boolean) => {
+    setDisplayOptions({
+      ...displayOptions,
+      sortOption: {
+        sortKey,
+        asc,
+      },
+    });
+  };
+
+  const filterMovie = useMoviesWithOptions(movieData, displayOptions);
 
   const loadMovies = () => {
     setNumberOfMovies(numberOfMovies + numberOfMoviesToLoad);
@@ -39,7 +60,11 @@ function MoviePage() {
 
   return (
     <div className="movie-card-page">
-      <SearchBar movieData={movieData} setFilterMovie={setFilterMovie} />
+      <SearchBar
+        movieData={movieData}
+        setFilterMovie={changeFilterOptions}
+        setSortMovie={changeSortOption}
+      />
       {filterMovie?.length !== 0 ? (
         <MovieInfoCard
           numberOfMovies={numberOfMovies}

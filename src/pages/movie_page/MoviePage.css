@@ -44,7 +44,7 @@
   display: inline-block;
 }
 .input-search {
-  width: 40%;
+  width: 35%;
   float: right;
   margin: 10px;
   margin-top: 23px;
@@ -53,7 +53,7 @@
   float: left;
 }
 label {
-  margin: 10px 20px;
+  margin: 10px 5px;
 }
 .select-title {
   color: white;

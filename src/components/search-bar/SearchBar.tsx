@@ -4,10 +4,12 @@ import { MovieGenresInterface } from "../../interfaces/MovieGenreInterface";
 import { MovieInterface } from "../../interfaces/MovieInterface";
 import { Input } from "reactstrap";
 import { MovieGenres } from "../../constants/MovieGenres";
+import { FilterTypes, SortTypes } from "../../interfaces/DisplayMovies";
 
 interface Props {
-  movieData: MovieInterface[] | undefined;
-  setFilterMovie: (filterMovie: MovieInterface[]) => void;
+  movieData: MovieInterface[];
+  setFilterMovie: (filterType: FilterTypes, value: number | string) => void;
+  setSortMovie: (sortType: SortTypes, asc: boolean) => void;
 }
 
 const SearchBar = (props: Props) => {
@@ -15,14 +17,11 @@ const SearchBar = (props: Props) => {
   const [selectedYear, setSelectedYear] = useState();
 
   // filter search movie
-  const inputSearchTextLowerCase = inputSearchText.toLocaleLowerCase();
+  const inputSearchTextLowerCase = inputSearchText.toLowerCase();
 
   const handleSumbitSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const filterMovieSearch = props.movieData?.filter((movie: MovieInterface) =>
-      movie.title.toLocaleLowerCase().includes(inputSearchTextLowerCase)
-    );
-    filterMovieSearch && props.setFilterMovie(filterMovieSearch);
+    props.setFilterMovie(FilterTypes.Keyword, inputSearchTextLowerCase);
     setInputSearchText("");
   };
 
@@ -48,11 +47,8 @@ const SearchBar = (props: Props) => {
 
   useEffect(() => {
     if (!selectedYear) return;
-    const filterMovieYear = props.movieData?.filter((movie: MovieInterface) =>
-      movie.release_date.startsWith(selectedYear)
-    );
-    filterMovieYear && props.setFilterMovie(filterMovieYear);
-  }, [selectedYear, props.movieData]);
+    props.setFilterMovie(FilterTypes.Year, selectedYear);
+  }, [selectedYear]);
 
   // select rating
   const [selectedRating, setSlectedRating] = useState();
@@ -78,13 +74,8 @@ const SearchBar = (props: Props) => {
 
   useEffect(() => {
     if (!selectedRating) return;
-    const filterMovieRating = props.movieData?.filter(
-      (movie: MovieInterface) => {
-        if (movie.vote_average.toString() === selectedRating) return movie;
-      }
-    );
-    filterMovieRating && props.setFilterMovie(filterMovieRating);
-  }, [selectedRating, props.movieData]);
+    props.setFilterMovie(FilterTypes.Rating, selectedRating);
+  }, [selectedRating]);
 
   // select genre
   const [selectedGenre, setSelectedGenre] = useState();
@@ -103,13 +94,8 @@ const SearchBar = (props: Props) => {
 
   useEffect(() => {
     if (!selectedGenre) return;
-    const filterMovieGenre = props.movieData?.filter(
-      (movie: MovieInterface) => {
-        if (movie.genre_ids.includes(Number(selectedGenre))) return movie;
-      }
-    );
-    filterMovieGenre && props.setFilterMovie(filterMovieGenre);
-  }, [selectedGenre, props.movieData]);
+    props.setFilterMovie(FilterTypes.Genre, selectedGenre);
+  }, [selectedGenre]);
 
   // select language
   const [selectedLanguage, setSelectedLanguage] = useState();
@@ -135,39 +121,74 @@ const SearchBar = (props: Props) => {
 
   useEffect(() => {
     if (!selectedLanguage) return;
-    const filterMovieLanguage = props.movieData?.filter(
-      (movie: MovieInterface) => {
-        if (movie.original_language === selectedLanguage) return movie;
-      }
-    );
-    filterMovieLanguage && props.setFilterMovie(filterMovieLanguage);
-  }, [selectedLanguage, props.movieData]);
+    props.setFilterMovie(FilterTypes.Language, selectedLanguage);
+  }, [selectedLanguage]);
+
+  // sort by name
+  const [selectedSorting, setSelectedSorting] = useState("");
+
+  const handleSelectSorting = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSorting(e.target.value);
+  };
+
+  useEffect(() => {
+    if (!selectedSorting) return;
+
+    switch (selectedSorting) {
+      case "Name":
+        return props.setSortMovie(SortTypes.Name, true);
+      case "Year":
+        return props.setSortMovie(SortTypes.Year, true);
+      case "Name des":
+        return props.setSortMovie(SortTypes.Name, false);
+      case "Year des":
+        return props.setSortMovie(SortTypes.Year, false);
+    }
+  }, [selectedSorting]);
+
+  const sortingNameArray = ["Name", "Year", "Name des", "Year des"];
+
+  const dropdownBarSort = sortingNameArray.map((sortName: string, index) => {
+    {
+      return (
+        <option key={index} value={sortName}>
+          {sortName}
+        </option>
+      );
+    }
+  });
 
   return (
     <div className="search-bar">
       <Dropdown
         selectedValue={selectedGenre}
-        dropdownName="genre"
+        dropdownName="Select genre"
         dropdownBarList={dropdownBarGenres}
         handleSelectValue={handleSelectGenre}
       />
       <Dropdown
         selectedValue={selectedRating}
-        dropdownName="rating"
+        dropdownName="Select rating"
         dropdownBarList={dropdownBarRating}
         handleSelectValue={handleSelectRating}
       />
       <Dropdown
         selectedValue={selectedYear}
-        dropdownName="year"
+        dropdownName="Select year"
         dropdownBarList={dropdownBarYear}
         handleSelectValue={handleSelectYear}
       />
       <Dropdown
         selectedValue={selectedLanguage}
-        dropdownName="language"
+        dropdownName="Select language"
         dropdownBarList={dropdownBarLanguage}
         handleSelectValue={handleSelectLanguage}
+      />
+      <Dropdown
+        selectedValue={selectedSorting}
+        dropdownName="Sort by"
+        dropdownBarList={dropdownBarSort}
+        handleSelectValue={handleSelectSorting}
       />
       <form onSubmit={handleSumbitSearch} className="input-search">
         <Input
